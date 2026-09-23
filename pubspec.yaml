@@ -1,0 +1,29 @@
+name: flutterprojectfinalfr
+description: "Carty - an online grocery app built with Flutter, Provider and Supabase."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.9.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  # Backend: auth (email, Google, Apple) + Postgres database
+  supabase_flutter: ^2.17.2
+
+  # State management
+  provider: ^6.1.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
