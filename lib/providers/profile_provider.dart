@@ -16,6 +16,8 @@ class ProfileProvider extends ChangeNotifier {
 
   /// Saved delivery address, used to pre-fill Checkout.
   String get address => _profile?.address ?? '';
+  double? get latitude => _profile?.latitude;
+  double? get longitude => _profile?.longitude;
 
   Future<void> load() async {
     try {
@@ -31,6 +33,8 @@ class ProfileProvider extends ChangeNotifier {
     required String fullName,
     required String phone,
     required String address,
+    double? latitude,
+    double? longitude,
   }) async {
     _isSaving = true;
     notifyListeners();
@@ -39,6 +43,8 @@ class ProfileProvider extends ChangeNotifier {
         fullName: fullName,
         phone: phone,
         address: address,
+        latitude: latitude,
+        longitude: longitude,
       );
       return true;
     } catch (_) {

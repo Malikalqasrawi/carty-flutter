@@ -25,6 +25,8 @@ class ProfileService {
     required String fullName,
     required String phone,
     required String address,
+    double? latitude,
+    double? longitude,
   }) async {
     final row = await _client
         .from('profiles')
@@ -33,6 +35,8 @@ class ProfileService {
           'full_name': fullName,
           'phone': phone,
           'address': address,
+          'latitude': latitude,
+          'longitude': longitude,
         })
         .select()
         .single();

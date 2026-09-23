@@ -13,7 +13,8 @@ Users can sign up with email, **Google** or **Apple**, browse products by catego
 - **Search** across all products, with debounced typing and popular suggestions
 - **Favorites / wishlist** saved per user in the database
 - **Cart** synced to the database: survives restarts and works across devices, with optimistic updates and a free-delivery progress bar
-- **Checkout** that pre-fills your saved address; orders are created by one database function (`place_order`) in a single transaction, with the total calculated on the server
+- **Map location picker** (Talabat-style): drag the map under a fixed pin, or jump to your GPS position; the address is looked up automatically (OpenStreetMap + Nominatim, no API key)
+- **Checkout** that pre-fills your saved address and map location; orders are created by one database function (`place_order`) in a single transaction, with the total calculated on the server
 - **Profile**: edit name, phone and default address; see your order history
 - **Row Level Security**: each user can only read and change their own cart, favorites and orders
 
@@ -41,6 +42,7 @@ lib/
 └── widgets/               # reusable UI pieces
 supabase/schema.sql        # tables, RLS policies, trigger, place_order, seed data
 supabase/upgrade_v2.sql    # favorites, descriptions, popular flag, profile address
+supabase/upgrade_v3.sql    # latitude/longitude on orders and profiles
 ```
 
 Data flows **Screen → Provider → Service → Supabase**. Screens never call the database directly.
@@ -48,7 +50,7 @@ Data flows **Screen → Provider → Service → Supabase**. Screens never call 
 ## Run it locally
 
 1. Create a free project at [supabase.com](https://supabase.com).
-2. In **SQL Editor**, run `supabase/schema.sql`, then `supabase/upgrade_v2.sql`.
+2. In **SQL Editor**, run `supabase/schema.sql`, then `supabase/upgrade_v2.sql`, then `supabase/upgrade_v3.sql`.
 3. Copy `env.example.json` to `env.json` and add your project URL and publishable key.
 4. Run:
    ```bash

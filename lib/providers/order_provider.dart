@@ -37,6 +37,8 @@ class OrderProvider extends ChangeNotifier {
     required String address,
     required String paymentMethod,
     required List<String> instructions,
+    double? latitude,
+    double? longitude,
   }) async {
     _isPlacing = true;
     _error = null;
@@ -46,6 +48,8 @@ class OrderProvider extends ChangeNotifier {
         address: address,
         paymentMethod: paymentMethod,
         instructions: instructions,
+        latitude: latitude,
+        longitude: longitude,
       );
       await load(); // refresh "My Orders"
       return id;

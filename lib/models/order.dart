@@ -29,6 +29,8 @@ class Order {
   final double total;
   final String status;
   final List<OrderItem> items;
+  final double? latitude;
+  final double? longitude;
 
   const Order({
     required this.id,
@@ -39,7 +41,11 @@ class Order {
     required this.total,
     required this.status,
     required this.items,
+    this.latitude,
+    this.longitude,
   });
+
+  bool get hasLocation => latitude != null && longitude != null;
 
   int get itemCount {
     int count = 0;
@@ -65,6 +71,8 @@ class Order {
       items: rawItems
           .map((e) => OrderItem.fromMap(e as Map<String, dynamic>))
           .toList(),
+      latitude: (map['latitude'] as num?)?.toDouble(),
+      longitude: (map['longitude'] as num?)?.toDouble(),
     );
   }
 }

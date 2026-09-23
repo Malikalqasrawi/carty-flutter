@@ -1,6 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Needed in release builds to talk to Supabase and load images -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- "Use my location" button on the map picker -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:label="Carty"

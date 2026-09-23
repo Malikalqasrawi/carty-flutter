@@ -8,6 +8,8 @@
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
 	<string>Carty</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Carty uses your location to set your delivery address on the map.</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

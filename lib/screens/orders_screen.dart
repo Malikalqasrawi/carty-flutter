@@ -96,6 +96,12 @@ class _OrderCard extends StatelessWidget {
             ),
           const Divider(),
           Text('Address: ${order.address}'),
+          if (order.hasLocation)
+            Text(
+              '📍 ${order.latitude!.toStringAsFixed(5)}, ${order.longitude!.toStringAsFixed(5)}',
+              style: TextStyle(
+                  fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+            ),
           Text('Payment: ${order.paymentMethod}'),
           if (order.instructions.isNotEmpty)
             Text('Instructions: ${order.instructions.join(', ')}'),

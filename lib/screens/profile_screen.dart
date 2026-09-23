@@ -7,6 +7,7 @@ import '../providers/auth_provider.dart';
 import '../providers/order_provider.dart';
 import '../providers/profile_provider.dart';
 import '../providers/theme_provider.dart';
+import '../widgets/map_location_field.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -171,6 +172,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late final TextEditingController _name;
   late final TextEditingController _phone;
   late final TextEditingController _address;
+  double? _latitude;
+  double? _longitude;
 
   @override
   void initState() {
@@ -180,6 +183,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _name = TextEditingController(text: profile?.fullName ?? auth.displayName);
     _phone = TextEditingController(text: profile?.phone ?? '');
     _address = TextEditingController(text: profile?.address ?? '');
+    _latitude = profile?.latitude;
+    _longitude = profile?.longitude;
   }
 
   @override
@@ -196,6 +201,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           fullName: _name.text.trim(),
           phone: _phone.text.trim(),
           address: _address.text.trim(),
+          latitude: _latitude,
+          longitude: _longitude,
         );
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -237,6 +244,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
             ),
             const SizedBox(height: 14),
+            MapLocationField(
+              latitude: _latitude,
+              longitude: _longitude,
+              onPicked: (picked) => setState(() {
+                _latitude = picked.latitude;
+                _longitude = picked.longitude;
+                _address.text = picked.address;
+              }),
+            ),
+            const SizedBox(height: 10),
             TextFormField(
               controller: _address,
               maxLines: 2,

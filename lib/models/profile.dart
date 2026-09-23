@@ -5,6 +5,8 @@ class Profile {
   final String? phone;
   final String? address;
   final String? avatarUrl;
+  final double? latitude;
+  final double? longitude;
 
   const Profile({
     required this.id,
@@ -13,6 +15,8 @@ class Profile {
     this.phone,
     this.address,
     this.avatarUrl,
+    this.latitude,
+    this.longitude,
   });
 
   factory Profile.fromMap(Map<String, dynamic> map) {
@@ -23,6 +27,8 @@ class Profile {
       phone: map['phone'] as String?,
       address: map['address'] as String?,
       avatarUrl: map['avatar_url'] as String?,
+      latitude: (map['latitude'] as num?)?.toDouble(),
+      longitude: (map['longitude'] as num?)?.toDouble(),
     );
   }
 }

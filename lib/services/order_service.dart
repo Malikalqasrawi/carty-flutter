@@ -15,6 +15,8 @@ class OrderService {
     required String address,
     required String paymentMethod,
     required List<String> instructions,
+    double? latitude,
+    double? longitude,
   }) async {
     final orderId = await _client.rpc(
       'place_order',
@@ -22,6 +24,8 @@ class OrderService {
         'p_address': address,
         'p_payment_method': paymentMethod,
         'p_instructions': instructions,
+        'p_latitude': latitude,
+        'p_longitude': longitude,
       },
     );
     return orderId as int;

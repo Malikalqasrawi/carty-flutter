@@ -7,6 +7,7 @@ import '../providers/cart_provider.dart';
 import '../providers/nav_provider.dart';
 import '../providers/order_provider.dart';
 import '../providers/profile_provider.dart';
+import '../widgets/map_location_field.dart';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
@@ -35,12 +36,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   final _addressController = TextEditingController();
   String _payment = _paymentMethods.first;
   final Set<String> _instructions = {};
+  double? _latitude;
+  double? _longitude;
 
   @override
   void initState() {
     super.initState();
     // Pre-fill the saved address from the Profile page.
-    _addressController.text = context.read<ProfileProvider>().address;
+    final profile = context.read<ProfileProvider>();
+    _addressController.text = profile.address;
+    _latitude = profile.latitude;
+    _longitude = profile.longitude;
   }
 
   @override
@@ -59,6 +65,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       address: _addressController.text.trim(),
       paymentMethod: _payment,
       instructions: _instructions.toList(),
+      latitude: _latitude,
+      longitude: _longitude,
     );
 
     if (!mounted) return;
@@ -134,15 +142,31 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             _section(
               icon: Icons.location_on_outlined,
               title: 'Delivery address',
-              child: TextFormField(
-                controller: _addressController,
-                maxLines: 2,
-                validator: (v) => (v == null || v.trim().length < 5)
-                    ? 'Please enter your full address'
-                    : null,
-                decoration: const InputDecoration(
-                  hintText: 'e.g. Amman, Khalda, Street 10, Building 5',
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  MapLocationField(
+                    latitude: _latitude,
+                    longitude: _longitude,
+                    onPicked: (picked) => setState(() {
+                      _latitude = picked.latitude;
+                      _longitude = picked.longitude;
+                      _addressController.text = picked.address;
+                    }),
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: _addressController,
+                    maxLines: 2,
+                    validator: (v) => (v == null || v.trim().length < 5)
+                        ? 'Please enter your full address'
+                        : null,
+                    decoration: const InputDecoration(
+                      hintText: 'Building, floor, apartment (e.g. Building 5, 2nd floor)',
+                      helperText: 'Pick on the map, then add building and floor details.',
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 12),
