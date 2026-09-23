@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../core/theme.dart';
 import '../models/category.dart';
-import '../models/product.dart';
-import '../providers/cart_provider.dart';
 import '../providers/product_provider.dart';
 import '../widgets/cart_icon_button.dart';
-import '../widgets/net_image.dart';
-import '../widgets/quantity_stepper.dart';
+import '../widgets/product_card.dart';
 
+/// All products in one category, as a grid.
 class ProductsScreen extends StatefulWidget {
   final ProductCategory category;
 
@@ -49,11 +46,11 @@ class _ProductsScreenState extends State<ProductsScreen> {
     } else {
       body = RefreshIndicator(
         onRefresh: () => provider.loadProducts(widget.category.id, force: true),
-        child: ListView.separated(
-          padding: const EdgeInsets.all(16),
+        child: GridView.builder(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+          gridDelegate: const ProductGridDelegate(),
           itemCount: products.length,
-          separatorBuilder: (_, _) => const SizedBox(height: 12),
-          itemBuilder: (_, index) => _ProductTile(product: products[index]),
+          itemBuilder: (_, i) => ProductCard(product: products[i]),
         ),
       );
     }
@@ -61,75 +58,9 @@ class _ProductsScreenState extends State<ProductsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.category.name),
-        actions: const [CartIconButton()],
+        actions: const [CartIconButton(), SizedBox(width: 8)],
       ),
       body: body,
-    );
-  }
-}
-
-class _ProductTile extends StatelessWidget {
-  final Product product;
-
-  const _ProductTile({required this.product});
-
-  @override
-  Widget build(BuildContext context) {
-    final cart = context.watch<CartProvider>();
-    final quantity = cart.quantityOf(product.id);
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Row(
-          children: [
-            NetImage(product.imageUrl, width: 72, height: 72, fit: BoxFit.contain),
-            const SizedBox(width: 12),
-            // Expanded stops long names from overflowing the row.
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    product.name,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    product.priceLabel,
-                    style: const TextStyle(color: AppColors.price, fontWeight: FontWeight.w600),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 8),
-            if (quantity == 0)
-              FilledButton.icon(
-                onPressed: () {
-                  cart.add(product);
-                  ScaffoldMessenger.of(context)
-                    ..hideCurrentSnackBar()
-                    ..showSnackBar(
-                      SnackBar(
-                        content: Text('${product.name} added to cart'),
-                        duration: const Duration(seconds: 1),
-                      ),
-                    );
-                },
-                icon: const Icon(Icons.add, size: 18),
-                label: const Text('Add'),
-              )
-            else
-              QuantityStepper(
-                quantity: quantity,
-                onIncrement: () => cart.add(product),
-                onDecrement: () => cart.decrement(product),
-              ),
-          ],
-        ),
-      ),
     );
   }
 }

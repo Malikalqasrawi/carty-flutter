@@ -20,11 +20,13 @@ class NetImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final fallback = Container(
       width: width,
       height: height,
-      color: Colors.grey.shade200,
-      child: const Icon(Icons.image_not_supported_outlined, color: Colors.grey),
+      color: scheme.surfaceContainerHighest,
+      child: Icon(Icons.image_not_supported_outlined,
+          color: scheme.onSurfaceVariant),
     );
 
     return ClipRRect(

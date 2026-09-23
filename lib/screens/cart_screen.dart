@@ -4,15 +4,20 @@ import 'package:provider/provider.dart';
 import '../app.dart';
 import '../core/theme.dart';
 import '../providers/cart_provider.dart';
+import '../providers/nav_provider.dart';
 import '../widgets/net_image.dart';
 import '../widgets/quantity_stepper.dart';
 
+/// Cart tab (bottom navigation).
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
+
+  static const _freeDeliveryFrom = 15.0; // JOD, matches the promo banner
 
   @override
   Widget build(BuildContext context) {
     final cart = context.watch<CartProvider>();
+    final scheme = Theme.of(context).colorScheme;
 
     Widget body;
     if (cart.isLoading && cart.isEmpty) {
@@ -22,97 +27,152 @@ class CartScreen extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.shopping_cart_outlined, size: 80, color: Colors.grey),
-            const SizedBox(height: 12),
-            const Text('Your cart is empty', style: TextStyle(fontSize: 18)),
-            const SizedBox(height: 12),
-            TextButton(
-              onPressed: () => Navigator.pop(context),
+            Container(
+              padding: const EdgeInsets.all(28),
+              decoration: BoxDecoration(
+                color: AppColors.accent.withValues(alpha: 0.4),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.shopping_bag_outlined, size: 64),
+            ),
+            const SizedBox(height: 16),
+            const Text('Your cart is empty',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
+            const SizedBox(height: 4),
+            Text('Add something fresh to get started.',
+                style: TextStyle(color: scheme.onSurfaceVariant)),
+            const SizedBox(height: 16),
+            FilledButton(
+              onPressed: () => context.read<NavProvider>().goTo(NavProvider.home),
               child: const Text('Start shopping'),
             ),
           ],
         ),
       );
     } else {
-      body = ListView.separated(
-        padding: const EdgeInsets.all(16),
-        itemCount: cart.items.length,
-        separatorBuilder: (_, _) => const SizedBox(height: 12),
-        itemBuilder: (context, index) {
-          final item = cart.items[index];
-          return Dismissible(
-            key: ValueKey(item.product.id),
-            direction: DismissDirection.endToStart,
-            background: Container(
-              alignment: Alignment.centerRight,
-              padding: const EdgeInsets.only(right: 24),
-              decoration: BoxDecoration(
-                color: AppColors.error,
-                borderRadius: BorderRadius.circular(16),
+      final remaining = _freeDeliveryFrom - cart.totalPrice;
+      body = ListView(
+        padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
+        children: [
+          // Free-delivery progress bar
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    remaining > 0
+                        ? 'Add ${remaining.toStringAsFixed(2)} JOD more for free delivery'
+                        : 'You get free delivery! 🎉',
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 8),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(6),
+                    child: LinearProgressIndicator(
+                      minHeight: 8,
+                      value: (cart.totalPrice / _freeDeliveryFrom).clamp(0.0, 1.0),
+                      color: AppColors.accent,
+                      backgroundColor: scheme.surfaceContainerHighest,
+                    ),
+                  ),
+                ],
               ),
-              child: const Icon(Icons.delete, color: Colors.white),
             ),
-            onDismissed: (_) => cart.remove(item.product),
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: Row(
-                  children: [
-                    NetImage(item.product.imageUrl,
-                        width: 64, height: 64, fit: BoxFit.contain),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            item.product.name,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          if (cart.error != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Text(cart.error!, style: const TextStyle(color: AppColors.error)),
+            ),
+          for (final item in cart.items)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Dismissible(
+                key: ValueKey(item.product.id),
+                direction: DismissDirection.endToStart,
+                background: Container(
+                  alignment: Alignment.centerRight,
+                  padding: const EdgeInsets.only(right: 24),
+                  decoration: BoxDecoration(
+                    color: AppColors.error,
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: const Icon(Icons.delete_outline, color: Colors.white),
+                ),
+                onDismissed: (_) => cart.remove(item.product),
+                child: Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 64,
+                          height: 64,
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: scheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${item.lineTotal.toStringAsFixed(2)} JOD',
-                            style: const TextStyle(color: AppColors.price, fontWeight: FontWeight.w600),
+                          child: NetImage(item.product.imageUrl, fit: BoxFit.contain),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item.product.name,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(fontWeight: FontWeight.w700),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '${item.lineTotal.toStringAsFixed(2)} JOD',
+                                style: TextStyle(
+                                  color: AppColors.priceOf(context),
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                        QuantityStepper(
+                          compact: true,
+                          quantity: item.quantity,
+                          onIncrement: () => cart.add(item.product),
+                          onDecrement: () => cart.decrement(item.product),
+                        ),
+                      ],
                     ),
-                    QuantityStepper(
-                      quantity: item.quantity,
-                      onIncrement: () => cart.add(item.product),
-                      onDecrement: () => cart.decrement(item.product),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
-          );
-        },
+          Text(
+            'Tip: swipe an item left to remove it.',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
+          ),
+        ],
       );
     }
 
     return Scaffold(
       appBar: AppBar(title: const Text('My Cart')),
-      body: Column(
-        children: [
-          if (cart.error != null)
-            MaterialBanner(
-              content: Text(cart.error!),
-              actions: [
-                TextButton(onPressed: cart.load, child: const Text('Reload')),
-              ],
-            ),
-          Expanded(child: body),
-        ],
-      ),
+      body: RefreshIndicator(onRefresh: cart.load, child: body),
       bottomNavigationBar: cart.isEmpty
           ? null
           : SafeArea(
               child: Container(
-                padding: const EdgeInsets.all(16),
-                color: Colors.white,
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+                decoration: BoxDecoration(
+                  color: scheme.surface,
+                  border: Border(top: BorderSide(color: Theme.of(context).dividerColor)),
+                ),
                 child: Row(
                   children: [
                     Expanded(
@@ -121,11 +181,11 @@ class CartScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('${cart.totalQuantity} items',
-                              style: const TextStyle(color: Colors.grey)),
+                              style: TextStyle(color: scheme.onSurfaceVariant)),
                           Text(
                             '${cart.totalPrice.toStringAsFixed(2)} JOD',
                             style: const TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold),
+                                fontSize: 22, fontWeight: FontWeight.w800),
                           ),
                         ],
                       ),

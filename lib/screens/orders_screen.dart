@@ -66,8 +66,8 @@ class _OrderCard extends StatelessWidget {
           children: [
             Text(
               '${order.total.toStringAsFixed(2)} JOD',
-              style: const TextStyle(
-                  fontWeight: FontWeight.bold, color: AppColors.price),
+              style: TextStyle(
+                  fontWeight: FontWeight.bold, color: AppColors.priceOf(context)),
             ),
             const SizedBox(height: 4),
             Container(
@@ -76,7 +76,8 @@ class _OrderCard extends StatelessWidget {
                 color: AppColors.accent,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Text(order.status, style: const TextStyle(fontSize: 12)),
+              child: Text(order.status,
+                  style: const TextStyle(fontSize: 12, color: Colors.black)),
             ),
           ],
         ),

@@ -4,7 +4,9 @@ import 'package:provider/provider.dart';
 import '../app.dart';
 import '../core/theme.dart';
 import '../providers/cart_provider.dart';
+import '../providers/nav_provider.dart';
 import '../providers/order_provider.dart';
+import '../providers/profile_provider.dart';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
@@ -33,6 +35,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   final _addressController = TextEditingController();
   String _payment = _paymentMethods.first;
   final Set<String> _instructions = {};
+
+  @override
+  void initState() {
+    super.initState();
+    // Pre-fill the saved address from the Profile page.
+    _addressController.text = context.read<ProfileProvider>().address;
+  }
 
   @override
   void dispose() {
@@ -67,7 +76,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       context: context,
       barrierDismissible: false,
       builder: (dialogContext) => AlertDialog(
-        icon: const Icon(Icons.check_circle, color: AppColors.price, size: 56),
+        icon: Icon(Icons.check_circle, color: AppColors.priceOf(context), size: 56),
         title: const Text('Order placed!'),
         content: Text('Your order #$orderId is on its way.'),
         actions: [
@@ -80,8 +89,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
 
     if (!mounted) return;
-    // Back to Home, then open "My Orders".
+    // Back to the Home tab, then open "My Orders".
     final navigator = Navigator.of(context);
+    context.read<NavProvider>().goTo(NavProvider.home);
     navigator.popUntil((route) => route.isFirst);
     navigator.pushNamed(AppRoutes.orders);
   }
@@ -95,7 +105,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           children: [
             Row(
               children: [
-                Icon(icon, color: AppColors.primary),
+                Icon(icon, color: Theme.of(context).colorScheme.primary),
                 const SizedBox(width: 8),
                 Text(title,
                     style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),

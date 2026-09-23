@@ -6,16 +6,16 @@ Users can sign up with email, **Google** or **Apple**, browse products by catego
 
 ## Features
 
-- Email/password sign-up and login, with form validation (Jordanian phone format, password rules)
-- Social login with **Google** and **Apple** (Supabase OAuth + deep link)
-- Categories and products loaded from a Postgres database
-- Category search
-- Cart saved in the database: survives restarts and syncs between devices
-- Optimistic UI: cart updates right away and rolls back if saving fails
-- Checkout with address, payment method and delivery instructions
-- Orders are created by one database function (`place_order`) in a single transaction, and the total is calculated on the server
-- "My Orders" history with expandable order details
-- Row Level Security: each user can only read and change their own cart and orders
+- **Modern UI**: bottom navigation, auto-sliding promo banners, category bubbles and a product grid, with Hero animations into the product page
+- **Dark mode**: Light / Dark / System, remembered between launches
+- **Auth**: email/password with validation (Jordanian phone format), plus **Google** and **Apple** sign-in through Supabase OAuth and a deep link
+- **Product details** page with description, price per unit and add-to-cart
+- **Search** across all products, with debounced typing and popular suggestions
+- **Favorites / wishlist** saved per user in the database
+- **Cart** synced to the database: survives restarts and works across devices, with optimistic updates and a free-delivery progress bar
+- **Checkout** that pre-fills your saved address; orders are created by one database function (`place_order`) in a single transaction, with the total calculated on the server
+- **Profile**: edit name, phone and default address; see your order history
+- **Row Level Security**: each user can only read and change their own cart, favorites and orders
 
 ## Tech stack
 
@@ -40,6 +40,7 @@ lib/
 ├── screens/               # one file per page
 └── widgets/               # reusable UI pieces
 supabase/schema.sql        # tables, RLS policies, trigger, place_order, seed data
+supabase/upgrade_v2.sql    # favorites, descriptions, popular flag, profile address
 ```
 
 Data flows **Screen → Provider → Service → Supabase**. Screens never call the database directly.
@@ -47,7 +48,7 @@ Data flows **Screen → Provider → Service → Supabase**. Screens never call 
 ## Run it locally
 
 1. Create a free project at [supabase.com](https://supabase.com).
-2. In **SQL Editor**, run `supabase/schema.sql`.
+2. In **SQL Editor**, run `supabase/schema.sql`, then `supabase/upgrade_v2.sql`.
 3. Copy `env.example.json` to `env.json` and add your project URL and publishable key.
 4. Run:
    ```bash

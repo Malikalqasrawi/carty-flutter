@@ -32,6 +32,8 @@ class AuthService {
     final response = await _client.auth.signUp(
       email: email,
       password: password,
+      // The confirmation email link opens the app instead of localhost:3000.
+      emailRedirectTo: Env.authRedirectUrl,
       // Saved in auth.users.raw_user_meta_data; a database trigger
       // copies it into the public.profiles table.
       data: {'username': username, 'phone': phone},

@@ -4,17 +4,19 @@ import 'package:provider/provider.dart';
 import 'core/theme.dart';
 import 'providers/auth_provider.dart';
 import 'providers/cart_provider.dart';
+import 'providers/favorites_provider.dart';
+import 'providers/nav_provider.dart';
 import 'providers/order_provider.dart';
+import 'providers/profile_provider.dart';
+import 'providers/theme_provider.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
-import 'screens/cart_screen.dart';
 import 'screens/checkout_screen.dart';
-import 'screens/home_screen.dart';
+import 'screens/main_shell.dart';
 import 'screens/orders_screen.dart';
 
 class AppRoutes {
   static const register = '/register';
-  static const cart = '/cart';
   static const checkout = '/checkout';
   static const orders = '/orders';
 }
@@ -28,10 +30,11 @@ class CartyApp extends StatelessWidget {
       title: 'Carty',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+      themeMode: context.watch<ThemeProvider>().mode,
       home: const AuthGate(),
       routes: {
         AppRoutes.register: (_) => const RegisterScreen(),
-        AppRoutes.cart: (_) => const CartScreen(),
         AppRoutes.checkout: (_) => const CheckoutScreen(),
         AppRoutes.orders: (_) => const OrdersScreen(),
       },
@@ -56,24 +59,31 @@ class _AuthGateState extends State<AuthGate> {
   Widget build(BuildContext context) {
     final user = context.watch<AuthProvider>().user;
 
-    // Load (or clear) the user's cart and orders once per login.
+    // Load (or clear) the user's data once per login.
     if (user?.id != _loadedUserId) {
       _loadedUserId = user?.id;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
         final cart = context.read<CartProvider>();
         final orders = context.read<OrderProvider>();
+        final favorites = context.read<FavoritesProvider>();
+        final profile = context.read<ProfileProvider>();
         if (user == null) {
           cart.clearLocal();
           orders.clearLocal();
+          favorites.clearLocal();
+          profile.clearLocal();
+          context.read<NavProvider>().goTo(NavProvider.home);
         } else {
           cart.load();
           orders.load();
+          favorites.load();
+          profile.load();
         }
       });
     }
 
-    return user == null ? const LoginScreen() : const HomeScreen();
+    return user == null ? const LoginScreen() : const MainShell();
   }
 }
 

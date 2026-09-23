@@ -19,6 +19,9 @@ dependencies:
   # State management
   provider: ^6.1.5
 
+  # Saves small settings on the device (light/dark theme)
+  shared_preferences: ^2.5.3
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

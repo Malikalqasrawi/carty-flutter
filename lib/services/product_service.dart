@@ -25,4 +25,28 @@ class ProductService {
         .order('name', ascending: true);
     return rows.map(Product.fromMap).toList();
   }
+
+  /// Products marked is_popular (see supabase/upgrade_v2.sql).
+  Future<List<Product>> fetchPopular() async {
+    final rows = await _client
+        .from('products')
+        .select()
+        .eq('is_popular', true)
+        .order('name', ascending: true);
+    return rows.map(Product.fromMap).toList();
+  }
+
+  /// Case-insensitive search by product name across ALL categories.
+  Future<List<Product>> search(String query) async {
+    // Remove characters that have a special meaning in the filter syntax.
+    final safe = query.replaceAll(RegExp(r'[%,()*]'), ' ').trim();
+    if (safe.isEmpty) return [];
+    final rows = await _client
+        .from('products')
+        .select()
+        .ilike('name', '%$safe%')
+        .order('name', ascending: true)
+        .limit(30);
+    return rows.map(Product.fromMap).toList();
+  }
 }

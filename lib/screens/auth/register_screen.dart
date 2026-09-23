@@ -73,7 +73,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final auth = context.watch<AuthProvider>();
 
     // If the user signed up with Google/Apple from this screen, close it
-    // once the login completes so HomeScreen (behind it) becomes visible.
+    // once the login completes so the main app (behind it) becomes visible.
     if (auth.isLoggedIn && !_closing) {
       _closing = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {

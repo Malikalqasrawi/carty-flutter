@@ -11,6 +11,8 @@ class SocialLoginButtons extends StatelessWidget {
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
     final disabled = auth.isLoading;
+    // Apple's guidelines: black button on light backgrounds, white on dark.
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Column(
       children: [
@@ -33,6 +35,7 @@ class SocialLoginButtons extends StatelessWidget {
             minimumSize: const Size.fromHeight(50),
             backgroundColor: Colors.white,
             foregroundColor: Colors.black87,
+            side: const BorderSide(color: Color(0xFFDADCE0)),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
           child: const Row(
@@ -57,8 +60,8 @@ class SocialLoginButtons extends StatelessWidget {
         ElevatedButton.icon(
           onPressed: disabled ? null : () => auth.signInWithApple(),
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.black,
-            foregroundColor: Colors.white,
+            backgroundColor: isDark ? Colors.white : Colors.black,
+            foregroundColor: isDark ? Colors.black : Colors.white,
           ),
           icon: const Icon(Icons.apple, size: 26),
           label: const Text('Continue with Apple', style: TextStyle(fontSize: 16)),

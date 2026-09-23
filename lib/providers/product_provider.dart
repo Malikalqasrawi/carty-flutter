@@ -10,44 +10,56 @@ class ProductProvider extends ChangeNotifier {
   ProductProvider(this._service);
 
   List<ProductCategory> _categories = [];
-  bool _loadingCategories = false;
+  List<Product> _popular = [];
+  bool _loadingHome = false;
   String? _error;
-  String _search = '';
 
   /// Products are cached per category, so going back and forth
   /// does not download them again.
   final Map<int, List<Product>> _productsByCategory = {};
   final Set<int> _loadingProducts = {};
 
-  bool get isLoadingCategories => _loadingCategories;
-  String? get error => _error;
-  String get search => _search;
+  // Search state
+  List<Product> _searchResults = [];
+  String _searchQuery = '';
+  bool _searching = false;
 
-  List<ProductCategory> get categories {
-    if (_search.isEmpty) return _categories;
-    final q = _search.toLowerCase();
-    return _categories.where((c) => c.name.toLowerCase().contains(q)).toList();
-  }
+  List<ProductCategory> get categories => _categories;
+  List<Product> get popular => _popular;
+  bool get isLoadingHome => _loadingHome;
+  String? get error => _error;
+
+  List<Product> get searchResults => _searchResults;
+  String get searchQuery => _searchQuery;
+  bool get isSearching => _searching;
 
   List<Product>? productsFor(int categoryId) => _productsByCategory[categoryId];
   bool isLoadingProducts(int categoryId) => _loadingProducts.contains(categoryId);
 
-  void setSearch(String value) {
-    _search = value.trim();
-    notifyListeners();
+  ProductCategory? categoryById(int id) {
+    for (final c in _categories) {
+      if (c.id == id) return c;
+    }
+    return null;
   }
 
-  Future<void> loadCategories({bool force = false}) async {
+  /// Categories + popular products for the Home screen.
+  Future<void> loadHome({bool force = false}) async {
     if (_categories.isNotEmpty && !force) return;
-    _loadingCategories = true;
+    _loadingHome = true;
     _error = null;
     notifyListeners();
     try {
-      _categories = await _service.fetchCategories();
+      final results = await Future.wait([
+        _service.fetchCategories(),
+        _service.fetchPopular(),
+      ]);
+      _categories = results[0] as List<ProductCategory>;
+      _popular = results[1] as List<Product>;
     } catch (_) {
-      _error = 'Could not load categories.';
+      _error = 'Could not load products. Check your connection.';
     } finally {
-      _loadingCategories = false;
+      _loadingHome = false;
       notifyListeners();
     }
   }
@@ -65,6 +77,31 @@ class ProductProvider extends ChangeNotifier {
     } finally {
       _loadingProducts.remove(categoryId);
       notifyListeners();
+    }
+  }
+
+  Future<void> search(String query) async {
+    _searchQuery = query.trim();
+    if (_searchQuery.isEmpty) {
+      _searchResults = [];
+      _searching = false;
+      notifyListeners();
+      return;
+    }
+    _searching = true;
+    notifyListeners();
+    final requested = _searchQuery;
+    try {
+      final results = await _service.search(requested);
+      // Ignore old answers if the user kept typing.
+      if (requested == _searchQuery) _searchResults = results;
+    } catch (_) {
+      _searchResults = [];
+    } finally {
+      if (requested == _searchQuery) {
+        _searching = false;
+        notifyListeners();
+      }
     }
   }
 }
