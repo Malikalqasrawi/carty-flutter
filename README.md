@@ -62,7 +62,21 @@ See [SETUP.md](SETUP.md) for the full guide, including Google and Apple login.
 
 ## Screenshots
 
-_Coming soon_
+| Home | Category | Product details |
+|---|---|---|
+| <img src="docs/screenshots/home.png" width="250" alt="Home screen"> | <img src="docs/screenshots/products.png" width="250" alt="Products in a category"> | <img src="docs/screenshots/product-details.png" width="250" alt="Product details"> |
+
+| Search | Favorites | Cart |
+|---|---|---|
+| <img src="docs/screenshots/search.png" width="250" alt="Search with popular searches"> | <img src="docs/screenshots/favorites.png" width="250" alt="Favorite products"> | <img src="docs/screenshots/cart.png" width="250" alt="Cart with free-delivery progress"> |
+
+| Checkout | Delivery location | My orders |
+|---|---|---|
+| <img src="docs/screenshots/checkout.png" width="250" alt="Checkout"> | <img src="docs/screenshots/map.png" width="250" alt="Map location picker"> | <img src="docs/screenshots/orders.png" width="250" alt="Order history"> |
+
+| Dark mode |
+|---|
+| <img src="docs/screenshots/dark-mode.png" width="250" alt="Home screen in dark mode"> |
 
 ## Author
 
